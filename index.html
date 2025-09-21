@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarmonyStream - Spotify Style</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --dark-secondary: #181818;
+            --dark-tertiary: #282828;
+            --dark-text: #ffffff;
+            --dark-accent: #1DB954;
+            --light-bg: #f8f9fa;
+            --light-secondary: #ffffff;
+            --light-tertiary: #e0e0e0;
+            --light-text: #191414;
+            --light-accent: #1DB954;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .dark-theme {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+
+        .light-theme {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding-top: 60px;
+            width: 230px;
+            z-index: 100;
+        }
+
+        .dark-theme .sidebar {
+            background-color: #000000;
+        }
+
+        .light-theme .sidebar {
+            background-color: #000000;
+        }
+
+        .sidebar .nav-link {
+            color: #b3b3b3 !important;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .sidebar .nav-link.active {
+            color: #ffffff !important;
+        }
+
+        .logo {
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 230px;
+            padding: 80px 20px 100px 20px;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 230px;
+            height: 60px;
+            z-index: 99;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dark-theme .top-nav {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+        }
+
+        .light-theme .top-nav {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7) 0%, transparent 100%);
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            width: 300px;
+        }
+
+        .dark-theme .search-box {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .light-theme .search-box {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Player Controls */
+        .player-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            padding: 0 1rem;
+            z-index: 100;
+        }
+
+        .dark-theme .player-controls {
+            background-color: var(--dark-tertiary);
+            border-top: 1px solid #282828;
+        }
+
+        .light-theme .player-controls {
+            background-color: var(--light-secondary);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .track-info {
+            padding-left: 1rem;
+        }
+
+        .track-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .artist-name {
+            font-size: 0.75rem;
+            color: #b3b3b3;
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-buttons .btn {
+            color: #b3b3b3;
+            border: none;
+            background: transparent;
+        }
+
+        .control-buttons .btn:hover {
+            color: white;
+        }
+
+        .control-buttons .play-pause {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+        }
+
+        .control-buttons .play-pause:hover {
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-time {
+            font-size: 0.6875rem;
+            color: #b3b3b3;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .progress {
+            flex-grow: 1;
+            height: 4px;
+            background-color: #535353;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .dark-theme .progress {
+            background-color: #535353;
+        }
+
+        .light-theme .progress {
+            background-color: #dddddd;
+        }
+
+        .progress-bar {
+            background-color: #b3b3b3;
+            border-radius: 2px;
+        }
+
+        .dark-theme .progress-bar {
+            background-color: #b3b3b3;
+        }
+
+        .light-theme .progress-bar {
+            background-color: #5e5e5e;
+        }
+
+        .progress:hover .progress-bar {
+            background-color: #1DB954;
+        }
+
+        .extra-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 125px;
+        }
+
+        .volume-slider {
+            width: 80px;
+        }
+
+        /* Content Cards */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dark-theme .card {
+            background-color: #181818;
+        }
+
+        .light-theme .card {
+            background-color: #f0f0f0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dark-theme .card:hover {
+            background-color: #282828;
+        }
+
+        .light-theme .card:hover {
+            background-color: #e0e0e0;
+        }
+
+        .card-img-top {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-text {
+            color: #b3b3b3;
+            font-size: 0.875rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: var(--dark-accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+
+            .sidebar .nav-link span {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 80px;
+            }
+
+            .top-nav {
+                left: 80px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                width: 200px;
+            }
+
+            .track-info {
+                display: none;
+            }
+
+            .extra-controls {
+                display: none;
+            }
+        }
+
+        /* Animation for playing state */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .playing .album-art {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+
+<body class="dark-theme">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <svg viewBox="0 0 1134 340" xmlns="http://www.w3.org/2000/svg" style="fill: white; height: 40px;">
+                <path
+                    d="M8 171.4C8 87.8 75.8 20 159.4 20c83.6 0 151.4 67.8 151.4 151.4S243 322.8 159.4 322.8 8 255 8 171.4zm151.4 0c0-83.6-67.8-151.4-151.4-151.4S-143.4 87.8-143.4 171.4s67.8 151.4 151.4 151.4S159.4 255 159.4 171.4zm453.4-27.8v81.4h-27.8v-81.4h-41.8v-23.6h111.4v23.6h-41.8zm135.4-23.6h27.8v105h-27.8v-105zm135.4 0h27.8v105h-27.8v-105zm135.4 0h27.8v81.4h74.6v23.6h-102.4v-105zm-338.2 0h32.6l40.8 105h-29.4l-7.6-20.6h-42.8l-7.6 20.6h-29.4l40.8-105zm16.4 23.6l-15.2 41.8h30.4l-15.2-41.8zm135.4-23.6h29.4v81.4h74.6v23.6h-104v-105z" />
+            </svg>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="fas fa-home me-3"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-search me-3"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-book me-3"></i>
+                    <span>Your Library</span>
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-plus-square me-3"></i>
+                    <span>Create Playlist</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-heart me-3"></i>
+                    <span>Liked Songs</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="search-box">
+            <i class="fas fa-search me-2"></i>
+            <input type="text" id="search-input" placeholder="Search for artists or songs...">
+        </div>
+        <div class="user-menu">
+            <button class="btn btn-outline-light rounded-pill btn-sm mx-2">
+                <i class="fas fa-user me-1"></i>
+                <span>Profile</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2 class="section-title">Recently Played</h2>
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-4 mb-5">
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Mix 1</h5>
+                        <p class="card-text">Your personalized mix of music</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Discover Weekly</h5>
+                        <p class="card-text">Your weekly music discovery</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Release Radar</h5>
+                        <p class="card-text">New music from artists you follow</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Chill Hits</h5>
+                        <p class="card-text">Kick back to the best new and recent chill hits</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Rock Classics</h5>
+                        <p class="card-text">Rock legends & epic songs that continue to inspire generations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">All Out 80s</h5>
+                        <p class="card-text">The biggest hits of the 1980s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Made for You</h2>
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6 g-4">
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Time Capsule</h5>
+                        <p class="card-text">Songs from your past</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">On Repeat</h5>
+                        <p class="card-text">Songs you love right now</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Mix 2</h5>
+                        <p class="card-text">Made for You based on your listening habits</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Mix 3</h5>
+                        <p class="card-text">Made for You based on your listening habits</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Mix 4</h5>
+                        <p class="card-text">Made for You based on your listening habits</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80"
+                        class="card-img-top" alt="Album Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">Daily Mix 5</h5>
+                        <p class="card-text">Made for You based on your listening habits</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Controls -->
+    <div class="player-controls d-flex justify-content-between align-items-center">
+        <div class="current-track d-flex align-items-center">
+            <div class="album-art" id="album-art"
+                style="background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80')">
+            </div>
+            <div class="track-info">
+                <div class="track-name" id="track-name">Blinding Lights</div>
+                <div class="artist-name" id="artist-name">The Weeknd</div>
+            </div>
+            <button class="btn ms-3">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+
+        <div class="controls">
+            <div class="control-buttons">
+                <button class="btn" id="shuffle-btn">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button class="btn" id="prev-btn">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button class="btn play-pause" id="play-pause-btn">
+                    <i class="fas fa-play" id="play-pause-icon"></i>
+                </button>
+                <button class="btn" id="next-btn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                <button class="btn" id="repeat-btn">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            <div class="progress-container">
+                <div class="progress-time" id="current-time">0:00</div>
+                <div class="progress" id="progress-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 30%"></div>
+                </div>
+                <div class="progress-time" id="duration">3:20</div>
+            </div>
+        </div>
+
+        <div class="extra-controls">
+            <div class="btn-group">
+                <button class="btn">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button class="btn">
+                    <i class="fas fa-laptop"></i>
+                </button>
+            </div>
+            <div class="volume-container">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="70">
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="audio-player"></audio>
+
+    <!-- Bootstrap & jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Elements
+            const audioPlayer = document.getElementById('audio-player');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const playPauseIcon = document.getElementById('play-pause-icon');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+            const progressBar = document.getElementById('progress-bar');
+            const progressContainer = document.getElementById('progress-container');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+            const albumArt = document.getElementById('album-art');
+            const trackName = document.getElementById('track-name');
+            const artistName = document.getElementById('artist-name');
+            const themeToggle = document.getElementById('theme-toggle');
+
+            // Player state
+            let isPlaying = false;
+            let currentTrackIndex = 0;
+            let tracks = [];
+            let currentTheme = 'dark';
+
+            // Mock tracks data
+            tracks = [
+                {
+                    title: "Blinding Lights",
+                    artist: "The Weeknd",
+                    albumArt: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
+                    preview: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_5b73887c63.mp3?filename=electronic-rock-king-around-here-15045.mp3",
+                    duration: "3:20"
+                },
+                {
+                    title: "Save Your Tears",
+                    artist: "The Weeknd",
+                    albumArt: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
+                    preview: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_5b1bdfa555.mp3?filename=cinematic-documentary-piano-118527.mp3",
+                    duration: "3:35"
+                },
+                {
+                    title: "Take My Breath",
+                    artist: "The Weeknd",
+                    albumArt: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
+                    preview: "https://cdn.pixabay.com/download/audio/2022/11/25/audio_141b3800c8.mp3?filename=cinematic-piano-123571.mp3",
+                    duration: "3:42"
+                }
+            ];
+
+            // Format time for display
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return `${min}:${sec < 10 ? '0' + sec : sec}`;
+            }
+
+            // Update progress bar
+            audioPlayer.addEventListener('timeupdate', function () {
+                const currentTime = audioPlayer.currentTime;
+                const duration = audioPlayer.duration;
+                const progressPercent = (currentTime / duration) * 100;
+
+                progressBar.style.width = `${progressPercent}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+
+                if (duration) {
+                    durationEl.textContent = formatTime(duration);
+                }
+            });
+
+            // Set progress on click
+            progressContainer.addEventListener('click', function (e) {
+                const width = this.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audioPlayer.duration;
+
+                audioPlayer.currentTime = (clickX / width) * duration;
+            });
+
+            // Play/Pause functionality
+            playPauseBtn.addEventListener('click', function () {
+                if (isPlaying) {
+                    pauseAudio();
+                } else {
+                    playAudio();
+                }
+            });
+
+            function playAudio() {
+                if (tracks.length === 0) return;
+
+                audioPlayer.play();
+                isPlaying = true;
+                playPauseIcon.className = 'fas fa-pause';
+                albumArt.parentElement.parentElement.classList.add('playing');
+            }
+
+            function pauseAudio() {
+                audioPlayer.pause();
+                isPlaying = false;
+                playPauseIcon.className = 'fas fa-play';
+                albumArt.parentElement.parentElement.classList.remove('playing');
+            }
+
+            // Volume control
+            volumeSlider.addEventListener('input', function () {
+                audioPlayer.volume = this.value / 100;
+            });
+
+            // Next and previous tracks
+            prevBtn.addEventListener('click', function () {
+                if (tracks.length === 0) return;
+
+                currentTrackIndex--;
+                if (currentTrackIndex < 0) {
+                    currentTrackIndex = tracks.length - 1;
+                }
+
+                loadTrack(currentTrackIndex);
+                playAudio();
+            });
+
+            nextBtn.addEventListener('click', function () {
+                if (tracks.length === 0) return;
+
+                currentTrackIndex++;
+                if (currentTrackIndex >= tracks.length) {
+                    currentTrackIndex = 0;
+                }
+
+                loadTrack(currentTrackIndex);
+                playAudio();
+            });
+
+            // Load a track
+            function loadTrack(index) {
+                const track = tracks[index];
+
+                audioPlayer.src = track.preview;
+                albumArt.style.backgroundImage = `url('${track.albumArt}')`;
+                trackName.textContent = track.title;
+                artistName.textContent = track.artist;
+                durationEl.textContent = track.duration;
+            }
+
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', function () {
+                if (currentTheme === 'dark') {
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                    currentTheme = 'light';
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    currentTheme = 'dark';
+                }
+            });
+
+            // Initialize with first track
+            loadTrack(currentTrackIndex);
+        });
+    </script>
+</body>
+
+</html>
